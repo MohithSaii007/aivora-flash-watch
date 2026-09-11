@@ -64,6 +64,27 @@ export type Database = {
           },
         ]
       }
+      control_room_emails: {
+        Row: {
+          created_at: string
+          email: string
+          note: string | null
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          note?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          note?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: []
+      }
       emergency_actions: {
         Row: {
           action: string
@@ -689,6 +710,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_my_role: {
+        Args: never
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
