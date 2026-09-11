@@ -92,19 +92,17 @@ function PublicAlertPage() {
     };
   }, []);
 
-  const active = useMemo(
+  const realActive = useMemo(
     () => (orders ?? []).filter((o) => o.status === "ACTIVE"),
     [orders],
   );
-  const villages = useMemo(
-    () => Array.from(new Set(active.map((o) => o.location_name))).sort(),
-    [active],
-  );
+
   // ---- Phone location + automatic siren -------------------------------------
   const [locations, setLocations] = useState<LocationRecord[]>([]);
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [geoState, setGeoState] = useState<"idle" | "asking" | "on" | "denied">("idle");
   const [sirenOn, setSirenOn] = useState(false);
+  const [drill, setDrill] = useState<DrillScenario | null>(null);
   const sounded = useRef<Set<string>>(new Set());
 
   useEffect(() => {
@@ -113,38 +111,79 @@ function PublicAlertPage() {
       .catch(() => setLocations([]));
   }, []);
 
-  /** Active orders for villages near this phone, closest first. */
+  /** Real orders plus the drill order, so both render and siren identically. */
+  const active = useMemo(
+    () => (drill ? [drill.order, ...realActive] : realActive),
+    [drill, realActive],
+  );
+  const villages = useMemo(
+    () => Array.from(new Set(active.map((o) => o.location_name))).sort(),
+    [active],
+  );
+
+  /** Active orders near this device, closest first. Drills use a 50 m circle. */
   const nearby = useMemo(() => {
     if (!coords) return [];
+    const all = drill ? [...locations, drill.location] : locations;
     return active
       .map((o) => {
-        const loc = locations.find((l) => l.id === o.location_id);
+        const loc = all.find((l) => l.id === o.location_id);
         if (!loc) return null;
-        return { order: o, distanceKm: haversineKm(coords, loc) };
+        const radius = drill && o.id === drill.order.id ? DRILL_RADIUS_KM : DANGER_RADIUS_KM;
+        const distanceKm = haversineKm(coords, loc);
+        return distanceKm <= radius ? { order: o, distanceKm } : null;
       })
       .filter((v): v is { order: PublicEvacuationOrder; distanceKm: number } => v !== null)
-      .filter((v) => v.distanceKm <= DANGER_RADIUS_KM)
       .sort((a, b) => a.distanceKm - b.distanceKm);
-  }, [active, locations, coords]);
+  }, [active, locations, coords, drill]);
 
   const inDanger = nearby[0] ?? null;
 
+  /** Arm sound, then keep watching this device's position. Resolves with coords. */
   const enableAlerts = useCallback(async () => {
     const armed = await armSiren();
     setSirenOn(armed);
     if (!("geolocation" in navigator)) {
       setGeoState("denied");
-      return;
+      return null;
     }
     setGeoState("asking");
-    navigator.geolocation.watchPosition(
-      (pos) => {
-        setCoords({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
-        setGeoState("on");
-      },
-      () => setGeoState("denied"),
-      { enableHighAccuracy: true, maximumAge: 30000, timeout: 20000 },
-    );
+    return new Promise<{ latitude: number; longitude: number } | null>((resolve) => {
+      let settled = false;
+      navigator.geolocation.watchPosition(
+        (pos) => {
+          const next = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+          setCoords(next);
+          setGeoState("on");
+          if (!settled) {
+            settled = true;
+            resolve(next);
+          }
+        },
+        () => {
+          setGeoState("denied");
+          if (!settled) {
+            settled = true;
+            resolve(null);
+          }
+        },
+        { enableHighAccuracy: true, maximumAge: 30000, timeout: 20000 },
+      );
+    });
+  }, []);
+
+  /** Start a test flood centred on this device with generated safe places. */
+  const startDrill = useCallback(async () => {
+    const here = coords ?? (await enableAlerts());
+    if (!here) return;
+    if (!sirenOn) await armSiren().then(setSirenOn);
+    setDrill(buildDrillScenario(here));
+    setVillage("ALL");
+  }, [coords, enableAlerts, sirenOn]);
+
+  const stopDrill = useCallback(() => {
+    stopSiren();
+    setDrill(null);
   }, []);
 
   // Sound the siren once per new order that covers this phone's position.
