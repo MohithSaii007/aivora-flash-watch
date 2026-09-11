@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { Panel, PrototypeNotice } from "@/components/aivora/primitives";
-import { FUTURE_INTEGRATIONS } from "@/services/aivoraApi";
+import { futureIntegrations } from "@/services/aivoraApi";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/data-sources")({

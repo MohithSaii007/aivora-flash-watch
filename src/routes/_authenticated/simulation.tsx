@@ -5,7 +5,7 @@ import { SimulationControl } from "@/components/aivora/SimulationControl";
 import { LocationSelector } from "@/components/aivora/insight";
 import { RealtimeAreaChart } from "@/components/aivora/charts";
 import { useDistrictSummary, useSimulation } from "@/lib/aivora/store";
-import { DEMO_SEQUENCE } from "@/lib/aivora/engine";
+import { DEMO_SEQUENCE, SCENARIOS } from "@/lib/aivora/engine";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/simulation")({
@@ -76,20 +76,24 @@ function SimulationPage() {
         <div className="space-y-4">
           <Panel title="Guided demo sequence" subtitle="One-click narrative for evaluators">
             <ol className="space-y-2">
-              {DEMO_SEQUENCE.map((step, i) => (
-                <li
-                  key={step.id}
-                  className={cn(
-                    "rounded-md border px-3 py-2 text-xs",
-                    sim.demoRunning && sim.demoStage === i
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border bg-surface-2 text-muted-foreground",
-                  )}
-                >
-                  <span className="metric mr-2">{i + 1}</span>
-                  {step.label}
-                </li>
-              ))}
+              {DEMO_SEQUENCE.map((step, i) => {
+                const meta = SCENARIOS.find((sc) => sc.id === step);
+                return (
+                  <li
+                    key={step}
+                    className={cn(
+                      "rounded-md border px-3 py-2 text-xs",
+                      sim.demoRunning && sim.demoStage === i
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border bg-surface-2 text-muted-foreground",
+                    )}
+                  >
+                    <span className="metric mr-2">{i + 1}</span>
+                    {meta?.label ?? step}
+                    <span className="mt-0.5 block text-[11px] opacity-80">{meta?.description}</span>
+                  </li>
+                );
+              })}
             </ol>
           </Panel>
 
