@@ -136,7 +136,7 @@ function PublicAlertPage() {
         </section>
       ) : (
         <>
-          <section className="mt-5 animate-pulse-slow rounded-lg border border-critical bg-critical/15 p-4">
+          <section className="mt-5 animate-pulse rounded-lg border border-critical bg-critical/15 p-4">
             <div className="flex items-start gap-3">
               <AlertTriangle className="mt-0.5 size-6 shrink-0 text-critical" aria-hidden="true" />
               <div className="min-w-0">
