@@ -1,18 +1,24 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   AlertTriangle,
   ArrowRight,
+  BellRing,
   Clock,
   Footprints,
   MapPin,
+  Navigation,
   RefreshCw,
   ShieldCheck,
   Users,
+  VolumeX,
 } from "lucide-react";
 
-import { getPublicEvacuationOrders } from "@/services/aivoraApi";
+import { getLocations, getPublicEvacuationOrders } from "@/services/aivoraApi";
 import type { PublicEvacuationOrder } from "@/services/aivoraApi";
+import type { LocationRecord } from "@/lib/aivora/types";
+import { haversineKm } from "@/lib/aivora/evacuation";
+import { armSiren, playSiren, stopSiren } from "@/lib/aivora/siren";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/alert")({
@@ -36,6 +42,9 @@ export const Route = createFileRoute("/alert")({
   }),
   component: PublicAlertPage,
 });
+
+/** A phone within this distance of an ordered village is treated as being in the danger zone. */
+const DANGER_RADIUS_KM = 8;
 
 const SAFETY_STEPS = [
   "Leave now. Do not wait for water to reach your house.",
@@ -89,6 +98,63 @@ function PublicAlertPage() {
     () => Array.from(new Set(active.map((o) => o.location_name))).sort(),
     [active],
   );
+  // ---- Phone location + automatic siren -------------------------------------
+  const [locations, setLocations] = useState<LocationRecord[]>([]);
+  const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [geoState, setGeoState] = useState<"idle" | "asking" | "on" | "denied">("idle");
+  const [sirenOn, setSirenOn] = useState(false);
+  const sounded = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    void getLocations()
+      .then(setLocations)
+      .catch(() => setLocations([]));
+  }, []);
+
+  /** Active orders for villages near this phone, closest first. */
+  const nearby = useMemo(() => {
+    if (!coords) return [];
+    return active
+      .map((o) => {
+        const loc = locations.find((l) => l.id === o.location_id);
+        if (!loc) return null;
+        return { order: o, distanceKm: haversineKm(coords, loc) };
+      })
+      .filter((v): v is { order: PublicEvacuationOrder; distanceKm: number } => v !== null)
+      .filter((v) => v.distanceKm <= DANGER_RADIUS_KM)
+      .sort((a, b) => a.distanceKm - b.distanceKm);
+  }, [active, locations, coords]);
+
+  const inDanger = nearby[0] ?? null;
+
+  const enableAlerts = useCallback(async () => {
+    const armed = await armSiren();
+    setSirenOn(armed);
+    if (!("geolocation" in navigator)) {
+      setGeoState("denied");
+      return;
+    }
+    setGeoState("asking");
+    navigator.geolocation.watchPosition(
+      (pos) => {
+        setCoords({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+        setGeoState("on");
+      },
+      () => setGeoState("denied"),
+      { enableHighAccuracy: true, maximumAge: 30000, timeout: 20000 },
+    );
+  }, []);
+
+  // Sound the siren once per new order that covers this phone's position.
+  useEffect(() => {
+    if (!sirenOn || !inDanger) return;
+    if (sounded.current.has(inDanger.order.id)) return;
+    sounded.current.add(inDanger.order.id);
+    playSiren(10);
+  }, [sirenOn, inDanger]);
+
+  useEffect(() => stopSiren, []);
+
   const shown = village === "ALL" ? active : active.filter((o) => o.location_name === village);
   const people = shown.reduce((n, o) => n + o.exposed_population, 0);
 
@@ -117,6 +183,87 @@ function PublicAlertPage() {
           ? `Updated ${refreshedAt.toLocaleTimeString()} · updates automatically`
           : "Loading latest alerts…"}
       </p>
+
+      {/* Siren + location consent */}
+      <section className="mt-4 rounded-lg border border-border bg-card p-4">
+        {sirenOn && geoState === "on" ? (
+          <div className="flex items-start gap-3">
+            <Navigation className="mt-0.5 size-4 shrink-0 text-normal" aria-hidden="true" />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold">Siren on · watching your location</p>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">
+                {inDanger
+                  ? `You are ${inDanger.distanceKm.toFixed(1)} km from ${inDanger.order.location_name}, which is under an evacuation order.`
+                  : "You are not inside a village under an evacuation order. Your phone will sound a siren the moment that changes."}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  stopSiren();
+                  setSirenOn(false);
+                }}
+                className="mt-2 flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[11px] text-muted-foreground"
+              >
+                <VolumeX className="size-3.5" aria-hidden="true" />
+                Silence siren
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-start gap-3">
+            <BellRing className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden="true" />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold">Turn on the emergency siren</p>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">
+                Your phone will sound a loud siren and vibrate automatically if you are inside a
+                village that is ordered to evacuate. Needs your location and one tap to allow sound.
+              </p>
+              {geoState === "denied" ? (
+                <p className="mt-2 text-[11px] text-warning">
+                  Location is blocked, so the siren cannot detect your village. Allow location for
+                  this page in your browser settings, or pick your village below.
+                </p>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => void enableAlerts()}
+                className="mt-2 w-full rounded-md bg-critical px-3 py-2.5 text-xs font-bold text-critical-foreground"
+              >
+                {geoState === "asking" ? "Waiting for location…" : "Turn on siren for my location"}
+              </button>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {inDanger ? (
+        <section className="mt-4 rounded-lg border-2 border-critical bg-critical/20 p-4">
+          <p className="flex items-center gap-2 text-[10px] font-bold tracking-widest text-critical">
+            <AlertTriangle className="size-3.5" aria-hidden="true" />
+            YOUR LOCATION IS IN DANGER
+          </p>
+          <h2 className="mt-1 text-lg font-black leading-tight">
+            Leave {inDanger.order.location_name} now
+          </h2>
+          <p className="mt-1 text-xs text-foreground/90">
+            You are {inDanger.distanceKm.toFixed(1)} km from this village.
+            {inDanger.order.primary_shelter_name
+              ? ` Go to ${inDanger.order.primary_shelter_name}, about ${inDanger.order.primary_shelter_walk_minutes} minutes on foot.`
+              : " Move to higher ground away from the stream."}
+          </p>
+          {inDanger.order.primary_shelter_lat && inDanger.order.primary_shelter_lng ? (
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&destination=${inDanger.order.primary_shelter_lat},${inDanger.order.primary_shelter_lng}`}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md bg-critical px-3 py-2.5 text-xs font-bold text-critical-foreground"
+            >
+              Take me to the shelter
+              <ArrowRight className="size-3.5" aria-hidden="true" />
+            </a>
+          ) : null}
+        </section>
+      ) : null}
 
       {orders === null ? (
         <p className="mt-8 text-sm text-muted-foreground">Checking for alerts…</p>
