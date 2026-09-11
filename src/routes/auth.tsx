@@ -32,14 +32,11 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-const ROLES: AppRole[] = ["admin", "responder", "community"];
-
 function AuthPage() {
   const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [role, setRole] = useState<AppRole>("admin");
   const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
   const { session } = useAuth();
