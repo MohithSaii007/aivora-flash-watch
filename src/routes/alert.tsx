@@ -330,7 +330,11 @@ function PublicAlertPage() {
             Leave {inDanger.order.location_name} now
           </h2>
           <p className="mt-1 text-xs text-foreground/90">
-            You are {inDanger.distanceKm.toFixed(1)} km from this village.
+            You are{" "}
+            {inDanger.distanceKm < 1
+              ? `${Math.round(inDanger.distanceKm * 1000)} metres`
+              : `${inDanger.distanceKm.toFixed(1)} km`}{" "}
+            from the centre of the flood zone.
             {inDanger.order.primary_shelter_name
               ? ` Go to ${inDanger.order.primary_shelter_name}, about ${inDanger.order.primary_shelter_walk_minutes} minutes on foot.`
               : " Move to higher ground away from the stream."}
