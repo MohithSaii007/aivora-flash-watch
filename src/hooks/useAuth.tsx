@@ -88,8 +88,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       refreshRole: async () => {
         const userId = session?.user.id;
         if (!userId) return;
-        const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId).limit(1);
-        setRole((data?.[0]?.role as AppRole | undefined) ?? "admin");
+        const { data: assigned } = await supabase.rpc("assign_my_role");
+        setRole((assigned as AppRole | null) ?? "community");
       },
     }),
     [session, role, loading, displayName],
