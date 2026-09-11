@@ -133,7 +133,7 @@ export function KpiCard({
     "panel group block p-4 text-left transition-colors hover:border-primary/50 focus-visible:border-primary";
   if (to) {
     return (
-      <Link to={to} className={base}>
+      <Link to={to as "/"} className={base}>
         {body}
       </Link>
     );
