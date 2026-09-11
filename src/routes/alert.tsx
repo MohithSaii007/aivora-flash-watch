@@ -19,6 +19,8 @@ import type { PublicEvacuationOrder } from "@/services/aivoraApi";
 import type { LocationRecord } from "@/lib/aivora/types";
 import { haversineKm } from "@/lib/aivora/evacuation";
 import { armSiren, playSiren, stopSiren } from "@/lib/aivora/siren";
+import { buildDrillScenario, DRILL_RADIUS_KM } from "@/lib/aivora/drill";
+import type { DrillScenario } from "@/lib/aivora/drill";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/alert")({
