@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { ROLE_LABELS, useAuth, type AppRole } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { LiveIndicator, PrototypeNotice } from "@/components/aivora/primitives";
 import { cn } from "@/lib/utils";
 
