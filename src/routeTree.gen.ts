@@ -13,12 +13,16 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated/alerts'
+import { Route as AuthenticatedDataSourcesRouteImport } from './routes/_authenticated/data-sources'
 import { Route as AuthenticatedEmergencyActionsRouteImport } from './routes/_authenticated/emergency-actions'
 import { Route as AuthenticatedEvacuationRouteImport } from './routes/_authenticated/evacuation'
+import { Route as AuthenticatedHistoricalRouteImport } from './routes/_authenticated/historical'
 import { Route as AuthenticatedOverviewRouteImport } from './routes/_authenticated/overview'
+import { Route as AuthenticatedPipelineRouteImport } from './routes/_authenticated/pipeline'
 import { Route as AuthenticatedPredictionsRouteImport } from './routes/_authenticated/predictions'
 import { Route as AuthenticatedRiskMapRouteImport } from './routes/_authenticated/risk-map'
 import { Route as AuthenticatedSensorsRouteImport } from './routes/_authenticated/sensors'
+import { Route as AuthenticatedSimulationRouteImport } from './routes/_authenticated/simulation'
 import { Route as AuthenticatedVulnerabilityRouteImport } from './routes/_authenticated/vulnerability'
 
 const IndexRoute = IndexRouteImport.update({
@@ -40,6 +44,12 @@ const AuthenticatedAlertsRoute = AuthenticatedAlertsRouteImport.update({
   path: '/alerts',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDataSourcesRoute =
+  AuthenticatedDataSourcesRouteImport.update({
+    id: '/data-sources',
+    path: '/data-sources',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedEmergencyActionsRoute =
   AuthenticatedEmergencyActionsRouteImport.update({
     id: '/emergency-actions',
@@ -51,9 +61,19 @@ const AuthenticatedEvacuationRoute = AuthenticatedEvacuationRouteImport.update({
   path: '/evacuation',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedHistoricalRoute = AuthenticatedHistoricalRouteImport.update({
+  id: '/historical',
+  path: '/historical',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedOverviewRoute = AuthenticatedOverviewRouteImport.update({
   id: '/overview',
   path: '/overview',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPipelineRoute = AuthenticatedPipelineRouteImport.update({
+  id: '/pipeline',
+  path: '/pipeline',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPredictionsRoute =
@@ -72,6 +92,11 @@ const AuthenticatedSensorsRoute = AuthenticatedSensorsRouteImport.update({
   path: '/sensors',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSimulationRoute = AuthenticatedSimulationRouteImport.update({
+  id: '/simulation',
+  path: '/simulation',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedVulnerabilityRoute =
   AuthenticatedVulnerabilityRouteImport.update({
     id: '/vulnerability',
@@ -83,24 +108,32 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/alerts': typeof AuthenticatedAlertsRoute
+  '/data-sources': typeof AuthenticatedDataSourcesRoute
   '/emergency-actions': typeof AuthenticatedEmergencyActionsRoute
   '/evacuation': typeof AuthenticatedEvacuationRoute
+  '/historical': typeof AuthenticatedHistoricalRoute
   '/overview': typeof AuthenticatedOverviewRoute
+  '/pipeline': typeof AuthenticatedPipelineRoute
   '/predictions': typeof AuthenticatedPredictionsRoute
   '/risk-map': typeof AuthenticatedRiskMapRoute
   '/sensors': typeof AuthenticatedSensorsRoute
+  '/simulation': typeof AuthenticatedSimulationRoute
   '/vulnerability': typeof AuthenticatedVulnerabilityRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/alerts': typeof AuthenticatedAlertsRoute
+  '/data-sources': typeof AuthenticatedDataSourcesRoute
   '/emergency-actions': typeof AuthenticatedEmergencyActionsRoute
   '/evacuation': typeof AuthenticatedEvacuationRoute
+  '/historical': typeof AuthenticatedHistoricalRoute
   '/overview': typeof AuthenticatedOverviewRoute
+  '/pipeline': typeof AuthenticatedPipelineRoute
   '/predictions': typeof AuthenticatedPredictionsRoute
   '/risk-map': typeof AuthenticatedRiskMapRoute
   '/sensors': typeof AuthenticatedSensorsRoute
+  '/simulation': typeof AuthenticatedSimulationRoute
   '/vulnerability': typeof AuthenticatedVulnerabilityRoute
 }
 export interface FileRoutesById {
@@ -109,12 +142,16 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/alerts': typeof AuthenticatedAlertsRoute
+  '/_authenticated/data-sources': typeof AuthenticatedDataSourcesRoute
   '/_authenticated/emergency-actions': typeof AuthenticatedEmergencyActionsRoute
   '/_authenticated/evacuation': typeof AuthenticatedEvacuationRoute
+  '/_authenticated/historical': typeof AuthenticatedHistoricalRoute
   '/_authenticated/overview': typeof AuthenticatedOverviewRoute
+  '/_authenticated/pipeline': typeof AuthenticatedPipelineRoute
   '/_authenticated/predictions': typeof AuthenticatedPredictionsRoute
   '/_authenticated/risk-map': typeof AuthenticatedRiskMapRoute
   '/_authenticated/sensors': typeof AuthenticatedSensorsRoute
+  '/_authenticated/simulation': typeof AuthenticatedSimulationRoute
   '/_authenticated/vulnerability': typeof AuthenticatedVulnerabilityRoute
 }
 export interface FileRouteTypes {
@@ -123,24 +160,32 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/alerts'
+    | '/data-sources'
     | '/emergency-actions'
     | '/evacuation'
+    | '/historical'
     | '/overview'
+    | '/pipeline'
     | '/predictions'
     | '/risk-map'
     | '/sensors'
+    | '/simulation'
     | '/vulnerability'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/alerts'
+    | '/data-sources'
     | '/emergency-actions'
     | '/evacuation'
+    | '/historical'
     | '/overview'
+    | '/pipeline'
     | '/predictions'
     | '/risk-map'
     | '/sensors'
+    | '/simulation'
     | '/vulnerability'
   id:
     | '__root__'
@@ -148,12 +193,16 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/alerts'
+    | '/_authenticated/data-sources'
     | '/_authenticated/emergency-actions'
     | '/_authenticated/evacuation'
+    | '/_authenticated/historical'
     | '/_authenticated/overview'
+    | '/_authenticated/pipeline'
     | '/_authenticated/predictions'
     | '/_authenticated/risk-map'
     | '/_authenticated/sensors'
+    | '/_authenticated/simulation'
     | '/_authenticated/vulnerability'
   fileRoutesById: FileRoutesById
 }
@@ -193,6 +242,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAlertsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/data-sources': {
+      id: '/_authenticated/data-sources'
+      path: '/data-sources'
+      fullPath: '/data-sources'
+      preLoaderRoute: typeof AuthenticatedDataSourcesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/emergency-actions': {
       id: '/_authenticated/emergency-actions'
       path: '/emergency-actions'
@@ -207,11 +263,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEvacuationRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/historical': {
+      id: '/_authenticated/historical'
+      path: '/historical'
+      fullPath: '/historical'
+      preLoaderRoute: typeof AuthenticatedHistoricalRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/overview': {
       id: '/_authenticated/overview'
       path: '/overview'
       fullPath: '/overview'
       preLoaderRoute: typeof AuthenticatedOverviewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pipeline': {
+      id: '/_authenticated/pipeline'
+      path: '/pipeline'
+      fullPath: '/pipeline'
+      preLoaderRoute: typeof AuthenticatedPipelineRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/predictions': {
@@ -235,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSensorsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/simulation': {
+      id: '/_authenticated/simulation'
+      path: '/simulation'
+      fullPath: '/simulation'
+      preLoaderRoute: typeof AuthenticatedSimulationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/vulnerability': {
       id: '/_authenticated/vulnerability'
       path: '/vulnerability'
@@ -247,23 +324,31 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAlertsRoute: typeof AuthenticatedAlertsRoute
+  AuthenticatedDataSourcesRoute: typeof AuthenticatedDataSourcesRoute
   AuthenticatedEmergencyActionsRoute: typeof AuthenticatedEmergencyActionsRoute
   AuthenticatedEvacuationRoute: typeof AuthenticatedEvacuationRoute
+  AuthenticatedHistoricalRoute: typeof AuthenticatedHistoricalRoute
   AuthenticatedOverviewRoute: typeof AuthenticatedOverviewRoute
+  AuthenticatedPipelineRoute: typeof AuthenticatedPipelineRoute
   AuthenticatedPredictionsRoute: typeof AuthenticatedPredictionsRoute
   AuthenticatedRiskMapRoute: typeof AuthenticatedRiskMapRoute
   AuthenticatedSensorsRoute: typeof AuthenticatedSensorsRoute
+  AuthenticatedSimulationRoute: typeof AuthenticatedSimulationRoute
   AuthenticatedVulnerabilityRoute: typeof AuthenticatedVulnerabilityRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAlertsRoute: AuthenticatedAlertsRoute,
+  AuthenticatedDataSourcesRoute: AuthenticatedDataSourcesRoute,
   AuthenticatedEmergencyActionsRoute: AuthenticatedEmergencyActionsRoute,
   AuthenticatedEvacuationRoute: AuthenticatedEvacuationRoute,
+  AuthenticatedHistoricalRoute: AuthenticatedHistoricalRoute,
   AuthenticatedOverviewRoute: AuthenticatedOverviewRoute,
+  AuthenticatedPipelineRoute: AuthenticatedPipelineRoute,
   AuthenticatedPredictionsRoute: AuthenticatedPredictionsRoute,
   AuthenticatedRiskMapRoute: AuthenticatedRiskMapRoute,
   AuthenticatedSensorsRoute: AuthenticatedSensorsRoute,
+  AuthenticatedSimulationRoute: AuthenticatedSimulationRoute,
   AuthenticatedVulnerabilityRoute: AuthenticatedVulnerabilityRoute,
 }
 
