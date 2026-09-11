@@ -172,10 +172,11 @@ export function runPrediction(
   const uncertainty = Math.round(clamp(14 - (confidence - 72) * 0.5, 4, 14));
 
   const top = contributions.slice(0, 3).map((c) => c.feature.toLowerCase());
+  const [t0 = "rainfall intensity", t1 = "soil saturation", t2 = "river level"] = top;
   const explanation =
     riskLevel === "NORMAL"
-      ? `Conditions are within normal limits. ${top[0]} remains the largest contributor but stays below alert thresholds.`
-      : `${cap(top[0])} combined with ${top[1]} and ${top[2]} is driving the current ${riskLevel.toLowerCase()} risk classification.`;
+      ? `Conditions are within normal limits. ${t0} remains the largest contributor but stays below alert thresholds.`
+      : `${cap(t0)} combined with ${t1} and ${t2} is driving the current ${riskLevel.toLowerCase()} risk classification.`;
 
   return {
     probability,
