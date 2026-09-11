@@ -7,7 +7,7 @@ import { ResponsibleAiPanel } from "@/components/aivora/insight";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { useSimulation } from "@/lib/aivora/store";
-import { useAuth } from "@/hooks/useAuth";
+import { ROLE_LABELS, useAuth } from "@/hooks/useAuth";
 import { DEFAULT_THRESHOLDS } from "@/lib/aivora/engine";
 
 export const Route = createFileRoute("/_authenticated/settings")({
@@ -31,7 +31,8 @@ export const Route = createFileRoute("/_authenticated/settings")({
 
 function SettingsPage() {
   const sim = useSimulation();
-  const { user, role, roleLabel } = useAuth();
+  const { user, role } = useAuth();
+  const roleLabel = role ? ROLE_LABELS[role] : "—";
   const [t, setT] = useState(sim.thresholds);
   const [refresh, setRefresh] = useState(Math.round(sim.refreshMs / 1000));
 
