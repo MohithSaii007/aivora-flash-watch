@@ -105,6 +105,9 @@ export function EvacuationOrderPanel({ onFocusLocation }: { onFocusLocation?: (i
         )}
       </Panel>
 
+      <PublicAlertShare />
+
+
       <Panel
         title="Live evacuation orders"
         subtitle={
