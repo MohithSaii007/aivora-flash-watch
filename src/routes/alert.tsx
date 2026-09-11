@@ -19,6 +19,8 @@ import type { PublicEvacuationOrder } from "@/services/aivoraApi";
 import type { LocationRecord } from "@/lib/aivora/types";
 import { haversineKm } from "@/lib/aivora/evacuation";
 import { armSiren, playSiren, stopSiren } from "@/lib/aivora/siren";
+import { buildDrillScenario, DRILL_RADIUS_KM } from "@/lib/aivora/drill";
+import type { DrillScenario } from "@/lib/aivora/drill";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/alert")({
@@ -90,19 +92,17 @@ function PublicAlertPage() {
     };
   }, []);
 
-  const active = useMemo(
+  const realActive = useMemo(
     () => (orders ?? []).filter((o) => o.status === "ACTIVE"),
     [orders],
   );
-  const villages = useMemo(
-    () => Array.from(new Set(active.map((o) => o.location_name))).sort(),
-    [active],
-  );
+
   // ---- Phone location + automatic siren -------------------------------------
   const [locations, setLocations] = useState<LocationRecord[]>([]);
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [geoState, setGeoState] = useState<"idle" | "asking" | "on" | "denied">("idle");
   const [sirenOn, setSirenOn] = useState(false);
+  const [drill, setDrill] = useState<DrillScenario | null>(null);
   const sounded = useRef<Set<string>>(new Set());
 
   useEffect(() => {
@@ -111,38 +111,79 @@ function PublicAlertPage() {
       .catch(() => setLocations([]));
   }, []);
 
-  /** Active orders for villages near this phone, closest first. */
+  /** Real orders plus the drill order, so both render and siren identically. */
+  const active = useMemo(
+    () => (drill ? [drill.order, ...realActive] : realActive),
+    [drill, realActive],
+  );
+  const villages = useMemo(
+    () => Array.from(new Set(active.map((o) => o.location_name))).sort(),
+    [active],
+  );
+
+  /** Active orders near this device, closest first. Drills use a 50 m circle. */
   const nearby = useMemo(() => {
     if (!coords) return [];
+    const all = drill ? [...locations, drill.location] : locations;
     return active
       .map((o) => {
-        const loc = locations.find((l) => l.id === o.location_id);
+        const loc = all.find((l) => l.id === o.location_id);
         if (!loc) return null;
-        return { order: o, distanceKm: haversineKm(coords, loc) };
+        const radius = drill && o.id === drill.order.id ? DRILL_RADIUS_KM : DANGER_RADIUS_KM;
+        const distanceKm = haversineKm(coords, loc);
+        return distanceKm <= radius ? { order: o, distanceKm } : null;
       })
       .filter((v): v is { order: PublicEvacuationOrder; distanceKm: number } => v !== null)
-      .filter((v) => v.distanceKm <= DANGER_RADIUS_KM)
       .sort((a, b) => a.distanceKm - b.distanceKm);
-  }, [active, locations, coords]);
+  }, [active, locations, coords, drill]);
 
   const inDanger = nearby[0] ?? null;
 
+  /** Arm sound, then keep watching this device's position. Resolves with coords. */
   const enableAlerts = useCallback(async () => {
     const armed = await armSiren();
     setSirenOn(armed);
     if (!("geolocation" in navigator)) {
       setGeoState("denied");
-      return;
+      return null;
     }
     setGeoState("asking");
-    navigator.geolocation.watchPosition(
-      (pos) => {
-        setCoords({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
-        setGeoState("on");
-      },
-      () => setGeoState("denied"),
-      { enableHighAccuracy: true, maximumAge: 30000, timeout: 20000 },
-    );
+    return new Promise<{ latitude: number; longitude: number } | null>((resolve) => {
+      let settled = false;
+      navigator.geolocation.watchPosition(
+        (pos) => {
+          const next = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+          setCoords(next);
+          setGeoState("on");
+          if (!settled) {
+            settled = true;
+            resolve(next);
+          }
+        },
+        () => {
+          setGeoState("denied");
+          if (!settled) {
+            settled = true;
+            resolve(null);
+          }
+        },
+        { enableHighAccuracy: true, maximumAge: 30000, timeout: 20000 },
+      );
+    });
+  }, []);
+
+  /** Start a test flood centred on this device with generated safe places. */
+  const startDrill = useCallback(async () => {
+    const here = coords ?? (await enableAlerts());
+    if (!here) return;
+    if (!sirenOn) await armSiren().then(setSirenOn);
+    setDrill(buildDrillScenario(here));
+    setVillage("ALL");
+  }, [coords, enableAlerts, sirenOn]);
+
+  const stopDrill = useCallback(() => {
+    stopSiren();
+    setDrill(null);
   }, []);
 
   // Sound the siren once per new order that covers this phone's position.
@@ -193,7 +234,11 @@ function PublicAlertPage() {
               <p className="text-xs font-bold">Siren on · watching your location</p>
               <p className="mt-0.5 text-[11px] text-muted-foreground">
                 {inDanger
-                  ? `You are ${inDanger.distanceKm.toFixed(1)} km from ${inDanger.order.location_name}, which is under an evacuation order.`
+                  ? `You are ${
+                      inDanger.distanceKm < 1
+                        ? `${Math.round(inDanger.distanceKm * 1000)} metres`
+                        : `${inDanger.distanceKm.toFixed(1)} km`
+                    } from ${inDanger.order.location_name}, which is under an evacuation order.`
                   : "You are not inside a village under an evacuation order. Your phone will sound a siren the moment that changes."}
               </p>
               <button
@@ -236,6 +281,49 @@ function PublicAlertPage() {
         )}
       </section>
 
+      {/* Drill mode — fake flood around this device, for demos anywhere */}
+      <section className="mt-3 rounded-lg border border-dashed border-warning/60 bg-warning/5 p-4">
+        <p className="text-[10px] font-bold tracking-widest text-warning">DEMO / DRILL MODE</p>
+        {drill ? (
+          <>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              A test flood is running in a 50 metre circle around this device, with three generated
+              safe places. Nothing was sent to any real village.
+            </p>
+            <div className="mt-2 flex gap-2">
+              <button
+                type="button"
+                onClick={() => playSiren(10)}
+                className="flex-1 rounded-md border border-warning/60 px-3 py-2 text-[11px] font-semibold text-warning"
+              >
+                Sound siren again
+              </button>
+              <button
+                type="button"
+                onClick={stopDrill}
+                className="flex-1 rounded-md border border-border px-3 py-2 text-[11px] text-muted-foreground"
+              >
+                End drill
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Create a test flash flood in a 50 metre circle around this device to hear the siren and
+              see the nearest safe places on a map. Clearly marked as a drill.
+            </p>
+            <button
+              type="button"
+              onClick={() => void startDrill()}
+              className="mt-2 w-full rounded-md bg-warning px-3 py-2.5 text-xs font-bold text-warning-foreground"
+            >
+              Run a test flood at my location
+            </button>
+          </>
+        )}
+      </section>
+
       {inDanger ? (
         <section className="mt-4 rounded-lg border-2 border-critical bg-critical/20 p-4">
           <p className="flex items-center gap-2 text-[10px] font-bold tracking-widest text-critical">
@@ -246,7 +334,11 @@ function PublicAlertPage() {
             Leave {inDanger.order.location_name} now
           </h2>
           <p className="mt-1 text-xs text-foreground/90">
-            You are {inDanger.distanceKm.toFixed(1)} km from this village.
+            You are{" "}
+            {inDanger.distanceKm < 1
+              ? `${Math.round(inDanger.distanceKm * 1000)} metres`
+              : `${inDanger.distanceKm.toFixed(1)} km`}{" "}
+            from the centre of the flood zone.
             {inDanger.order.primary_shelter_name
               ? ` Go to ${inDanger.order.primary_shelter_name}, about ${inDanger.order.primary_shelter_walk_minutes} minutes on foot.`
               : " Move to higher ground away from the stream."}
