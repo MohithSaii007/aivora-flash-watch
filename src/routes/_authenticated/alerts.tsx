@@ -93,7 +93,9 @@ function AlertsPage() {
               key={a.id}
               alert={a}
               locationName={name(a.location_id)}
-              onView={a.location_id ? () => sim.setSelectedLocationId(a.location_id!) : undefined}
+              {...(a.location_id
+                ? { onView: () => sim.setSelectedLocationId(a.location_id as string) }
+                : {})}
             />
           ))}
         </div>
