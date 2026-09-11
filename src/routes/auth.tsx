@@ -212,33 +212,12 @@ function AuthPage() {
             )}
 
             {mode === "signup" && (
-              <div>
-                <span className="data-label">Role</span>
-                <div className="mt-2 grid gap-2">
-                  {ROLES.map((r) => (
-                    <button
-                      type="button"
-                      key={r}
-                      onClick={() => setRole(r)}
-                      aria-pressed={role === r}
-                      className={cn(
-                        "rounded-md border px-3 py-2 text-left text-xs transition-colors",
-                        role === r
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border bg-secondary hover:border-primary/40",
-                      )}
-                    >
-                      <span className="block font-semibold">{ROLE_LABELS[r]}</span>
-                      <span className="block text-[11px] text-muted-foreground">
-                        {r === "admin"
-                          ? "Full control centre: predictions, IoT, evacuation, simulation"
-                          : r === "responder"
-                            ? "Alerts, nearby risk, routes, shelters, emergency actions"
-                            : "Local risk, warnings, safe route and nearest shelter"}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+              <div className="rounded-md border border-border bg-secondary px-3 py-2 text-[11px] text-muted-foreground">
+                <span className="block font-semibold text-foreground">
+                  Control Room access is restricted
+                </span>
+                Only approved official email addresses receive District Control Room access. Everyone
+                else gets the Community view: local risk, warnings, safe route and nearest shelter.
               </div>
             )}
 
