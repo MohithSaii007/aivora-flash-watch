@@ -57,7 +57,14 @@ function SimulationPage() {
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard label="Engine" value={sim.running ? "RUNNING" : "PAUSED"} hint={`${sim.speed}× speed`} live={sim.running} />
         <KpiCard label="Scenario" value={sim.scenario.replace(/_/g, " ")} hint={`Tick ${sim.tick}`} />
-        <KpiCard label="District risk" value={Math.round(s.maxProbability)} unit="%" level={s.worst?.prediction.riskLevel} live />
+        <KpiCard
+          label="District risk"
+          value={Math.round(s.maxProbability)}
+          unit="%"
+          {...(s.worst ? { level: s.worst.prediction.riskLevel } : {})}
+          live
+        />
+
         <KpiCard label="Connectivity" value={sim.connectivity} live />
       </div>
 
