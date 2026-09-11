@@ -277,6 +277,49 @@ function PublicAlertPage() {
         )}
       </section>
 
+      {/* Drill mode — fake flood around this device, for demos anywhere */}
+      <section className="mt-3 rounded-lg border border-dashed border-warning/60 bg-warning/5 p-4">
+        <p className="text-[10px] font-bold tracking-widest text-warning">DEMO / DRILL MODE</p>
+        {drill ? (
+          <>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              A test flood is running in a 50 metre circle around this device, with three generated
+              safe places. Nothing was sent to any real village.
+            </p>
+            <div className="mt-2 flex gap-2">
+              <button
+                type="button"
+                onClick={() => playSiren(10)}
+                className="flex-1 rounded-md border border-warning/60 px-3 py-2 text-[11px] font-semibold text-warning"
+              >
+                Sound siren again
+              </button>
+              <button
+                type="button"
+                onClick={stopDrill}
+                className="flex-1 rounded-md border border-border px-3 py-2 text-[11px] text-muted-foreground"
+              >
+                End drill
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Create a test flash flood in a 50 metre circle around this device to hear the siren and
+              see the nearest safe places on a map. Clearly marked as a drill.
+            </p>
+            <button
+              type="button"
+              onClick={() => void startDrill()}
+              className="mt-2 w-full rounded-md bg-warning px-3 py-2.5 text-xs font-bold text-warning-foreground"
+            >
+              Run a test flood at my location
+            </button>
+          </>
+        )}
+      </section>
+
       {inDanger ? (
         <section className="mt-4 rounded-lg border-2 border-critical bg-critical/20 p-4">
           <p className="flex items-center gap-2 text-[10px] font-bold tracking-widest text-critical">
