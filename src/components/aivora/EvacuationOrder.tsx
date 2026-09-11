@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Check, Copy, Megaphone, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Check, Copy, Megaphone, Smartphone, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { Panel, RiskBadge } from "@/components/aivora/primitives";
@@ -216,5 +216,73 @@ export function EvacuationOrderPanel({ onFocusLocation }: { onFocusLocation?: (i
         )}
       </Panel>
     </div>
+  );
+}
+
+/**
+ * Share card: the public phone link (and QR) villagers open to see the order.
+ */
+function PublicAlertShare() {
+  const [origin, setOrigin] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => setOrigin(window.location.origin), []);
+  const url = `${origin}/alert`;
+
+  return (
+    <Panel
+      title="Public alert page for phones"
+      subtitle="Open this link on any phone — orders appear there within seconds"
+    >
+      <div className="grid gap-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center">
+        {origin && (
+          <img
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&margin=8&data=${encodeURIComponent(url)}`}
+            alt="QR code linking to the public AIVORA flood alert page"
+            width={140}
+            height={140}
+            loading="lazy"
+            className="shrink-0 rounded-md bg-white p-1"
+          />
+        )}
+        <div className="min-w-0 space-y-2">
+          <p className="break-all rounded-md bg-surface-2 px-2.5 py-2 font-mono text-[11px]">
+            {url || "…"}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(url);
+                  setCopied(true);
+                  window.setTimeout(() => setCopied(false), 2000);
+                  toast.success("Public alert link copied");
+                } catch {
+                  toast.error("Could not copy the link");
+                }
+              }}
+              className="flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[11px] hover:bg-surface-2"
+            >
+              {copied ? <Check className="size-3.5 text-normal" /> : <Copy className="size-3.5" />}
+              Copy link
+            </button>
+            <a
+              href="/alert"
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[11px] hover:bg-surface-2"
+            >
+              <Smartphone className="size-3.5" aria-hidden="true" />
+              Preview phone view
+            </a>
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            Scan the code with a phone camera to show that the order reaches people. No sign-in
+            needed. In production this same order also goes out by SMS, siren and radio.
+          </p>
+        </div>
+      </div>
+    </Panel>
   );
 }
