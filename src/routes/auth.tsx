@@ -71,9 +71,9 @@ function AuthPage() {
         });
         if (error) throw error;
         const userId = data.user?.id;
-        if (userId) {
+        if (userId && data.session) {
           await supabase.from("profiles").upsert({ id: userId, display_name: name || email });
-          await supabase.from("user_roles").insert({ user_id: userId, role });
+          await supabase.rpc("assign_my_role");
         }
         if (data.session) {
           toast.success("Account created");
