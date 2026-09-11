@@ -39,8 +39,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         supabase.from("profiles").select("display_name").eq("id", userId).maybeSingle(),
       ]);
       if (!active) return;
-      setRole((roles?.[0]?.role as AppRole | undefined) ?? "admin");
       setDisplayName(profile?.display_name ?? "");
+
+      let resolved = roles?.[0]?.role as AppRole | undefined;
+      if (!resolved) {
+        // Server decides the access level from the approved control-room email list.
+        const { data: assigned } = await supabase.rpc("assign_my_role");
+        resolved = (assigned as AppRole | null) ?? "community";
+      }
+      if (!active) return;
+      setRole(resolved);
     };
 
     supabase.auth.getSession().then(({ data }) => {
