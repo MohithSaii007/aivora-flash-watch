@@ -119,9 +119,13 @@ export async function createAlert(input: {
 }
 
 export async function updateAlertStatus(id: string, status: string) {
-  const patch: Record<string, unknown> = { status };
-  if (status === "ACKNOWLEDGED") patch["acknowledged_at"] = new Date().toISOString();
-  const { error } = await supabase.from("alerts").update(patch).eq("id", id);
+  const { error } = await supabase
+    .from("alerts")
+    .update({
+      status,
+      ...(status === "ACKNOWLEDGED" ? { acknowledged_at: new Date().toISOString() } : {}),
+    })
+    .eq("id", id);
   if (error) throw error;
 }
 
