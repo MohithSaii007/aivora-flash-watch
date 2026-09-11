@@ -36,6 +36,7 @@ import type {
 import { buildEvacuationOrder } from "./evacuation";
 import type { EvacuationOrder } from "./evacuation";
 import {
+  clearPublishedOrders,
   createAlert,
   getEvacuationRoutes,
   getLocations,
@@ -43,6 +44,8 @@ import {
   getSensors,
   getShelters,
   getVulnerabilities,
+  publishEvacuationOrders,
+  publishOrderStatus,
   savePrediction,
 } from "@/services/aivoraApi";
 
