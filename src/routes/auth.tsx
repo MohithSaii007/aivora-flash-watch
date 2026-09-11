@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { ROLE_LABELS, useAuth, type AppRole } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { LiveIndicator, PrototypeNotice } from "@/components/aivora/primitives";
 import { cn } from "@/lib/utils";
 
@@ -32,14 +32,11 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-const ROLES: AppRole[] = ["admin", "responder", "community"];
-
 function AuthPage() {
   const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [role, setRole] = useState<AppRole>("admin");
   const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
   const { session } = useAuth();
@@ -71,9 +68,9 @@ function AuthPage() {
         });
         if (error) throw error;
         const userId = data.user?.id;
-        if (userId) {
+        if (userId && data.session) {
           await supabase.from("profiles").upsert({ id: userId, display_name: name || email });
-          await supabase.from("user_roles").insert({ user_id: userId, role });
+          await supabase.rpc("assign_my_role");
         }
         if (data.session) {
           toast.success("Account created");
@@ -161,7 +158,7 @@ function AuthPage() {
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
             {mode === "signup"
-              ? "Select the role that matches your responsibility."
+              ? "Your access level is decided by your email address, not chosen here."
               : "Access is role-based and every screen is labelled as prototype data."}
           </p>
 
@@ -212,33 +209,12 @@ function AuthPage() {
             )}
 
             {mode === "signup" && (
-              <div>
-                <span className="data-label">Role</span>
-                <div className="mt-2 grid gap-2">
-                  {ROLES.map((r) => (
-                    <button
-                      type="button"
-                      key={r}
-                      onClick={() => setRole(r)}
-                      aria-pressed={role === r}
-                      className={cn(
-                        "rounded-md border px-3 py-2 text-left text-xs transition-colors",
-                        role === r
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border bg-secondary hover:border-primary/40",
-                      )}
-                    >
-                      <span className="block font-semibold">{ROLE_LABELS[r]}</span>
-                      <span className="block text-[11px] text-muted-foreground">
-                        {r === "admin"
-                          ? "Full control centre: predictions, IoT, evacuation, simulation"
-                          : r === "responder"
-                            ? "Alerts, nearby risk, routes, shelters, emergency actions"
-                            : "Local risk, warnings, safe route and nearest shelter"}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+              <div className="rounded-md border border-border bg-secondary px-3 py-2 text-[11px] text-muted-foreground">
+                <span className="block font-semibold text-foreground">
+                  Control Room access is restricted
+                </span>
+                Only approved official email addresses receive District Control Room access. Everyone
+                else gets the Community view: local risk, warnings, safe route and nearest shelter.
               </div>
             )}
 
