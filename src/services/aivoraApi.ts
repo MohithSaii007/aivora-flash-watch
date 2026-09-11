@@ -103,6 +103,16 @@ export async function getAlerts(): Promise<AlertRecord[]> {
   return (data ?? []) as AlertRecord[];
 }
 
+/**
+ * Prototype writes require a signed-in control-room session. Fire-and-forget
+ * persistence is skipped before the session is hydrated so the console stays
+ * clean instead of logging rejected inserts.
+ */
+async function signedIn(): Promise<boolean> {
+  const { data } = await supabase.auth.getSession();
+  return Boolean(data.session);
+}
+
 /** POST /alerts/create */
 export async function createAlert(input: {
   location_id: string;
@@ -112,7 +122,8 @@ export async function createAlert(input: {
   lead_time: number | null;
   message: string;
   recommended_action: string;
-}) {
+}): Promise<AlertRecord | null> {
+  if (!(await signedIn())) return null;
   const { data, error } = await supabase.from("alerts").insert(input).select().single();
   if (error) throw error;
   return data as AlertRecord;
@@ -153,6 +164,7 @@ export async function savePrediction(input: {
   uncertainty: number;
   model_version: string;
 }) {
+  if (!(await signedIn())) return;
   const { error } = await supabase.from("predictions").insert(input);
   if (error) throw error;
 }
@@ -164,6 +176,7 @@ export async function pushSensorReading(input: {
   unit: string;
   quality: string;
 }) {
+  if (!(await signedIn())) return;
   const { error } = await supabase.from("sensor_readings").insert(input);
   if (error) throw error;
 }
