@@ -23,6 +23,7 @@ import { Route as AuthenticatedPipelineRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedPredictionsRouteImport } from './routes/_authenticated/predictions'
 import { Route as AuthenticatedRiskMapRouteImport } from './routes/_authenticated/risk-map'
 import { Route as AuthenticatedSensorsRouteImport } from './routes/_authenticated/sensors'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSimulationRouteImport } from './routes/_authenticated/simulation'
 import { Route as AuthenticatedSystemHealthRouteImport } from './routes/_authenticated/system-health'
 import { Route as AuthenticatedVulnerabilityRouteImport } from './routes/_authenticated/vulnerability'
@@ -99,6 +100,11 @@ const AuthenticatedSensorsRoute = AuthenticatedSensorsRouteImport.update({
   path: '/sensors',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSimulationRoute = AuthenticatedSimulationRouteImport.update({
   id: '/simulation',
   path: '/simulation',
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/predictions': typeof AuthenticatedPredictionsRoute
   '/risk-map': typeof AuthenticatedRiskMapRoute
   '/sensors': typeof AuthenticatedSensorsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/simulation': typeof AuthenticatedSimulationRoute
   '/system-health': typeof AuthenticatedSystemHealthRoute
   '/vulnerability': typeof AuthenticatedVulnerabilityRoute
@@ -149,6 +156,7 @@ export interface FileRoutesByTo {
   '/predictions': typeof AuthenticatedPredictionsRoute
   '/risk-map': typeof AuthenticatedRiskMapRoute
   '/sensors': typeof AuthenticatedSensorsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/simulation': typeof AuthenticatedSimulationRoute
   '/system-health': typeof AuthenticatedSystemHealthRoute
   '/vulnerability': typeof AuthenticatedVulnerabilityRoute
@@ -169,6 +177,7 @@ export interface FileRoutesById {
   '/_authenticated/predictions': typeof AuthenticatedPredictionsRoute
   '/_authenticated/risk-map': typeof AuthenticatedRiskMapRoute
   '/_authenticated/sensors': typeof AuthenticatedSensorsRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/simulation': typeof AuthenticatedSimulationRoute
   '/_authenticated/system-health': typeof AuthenticatedSystemHealthRoute
   '/_authenticated/vulnerability': typeof AuthenticatedVulnerabilityRoute
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
     | '/predictions'
     | '/risk-map'
     | '/sensors'
+    | '/settings'
     | '/simulation'
     | '/system-health'
     | '/vulnerability'
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/predictions'
     | '/risk-map'
     | '/sensors'
+    | '/settings'
     | '/simulation'
     | '/system-health'
     | '/vulnerability'
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/_authenticated/predictions'
     | '/_authenticated/risk-map'
     | '/_authenticated/sensors'
+    | '/_authenticated/settings'
     | '/_authenticated/simulation'
     | '/_authenticated/system-health'
     | '/_authenticated/vulnerability'
@@ -337,6 +349,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSensorsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/simulation': {
       id: '/_authenticated/simulation'
       path: '/simulation'
@@ -373,6 +392,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPredictionsRoute: typeof AuthenticatedPredictionsRoute
   AuthenticatedRiskMapRoute: typeof AuthenticatedRiskMapRoute
   AuthenticatedSensorsRoute: typeof AuthenticatedSensorsRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedSimulationRoute: typeof AuthenticatedSimulationRoute
   AuthenticatedSystemHealthRoute: typeof AuthenticatedSystemHealthRoute
   AuthenticatedVulnerabilityRoute: typeof AuthenticatedVulnerabilityRoute
@@ -390,6 +410,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPredictionsRoute: AuthenticatedPredictionsRoute,
   AuthenticatedRiskMapRoute: AuthenticatedRiskMapRoute,
   AuthenticatedSensorsRoute: AuthenticatedSensorsRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedSimulationRoute: AuthenticatedSimulationRoute,
   AuthenticatedSystemHealthRoute: AuthenticatedSystemHealthRoute,
   AuthenticatedVulnerabilityRoute: AuthenticatedVulnerabilityRoute,
