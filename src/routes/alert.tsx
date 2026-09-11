@@ -351,7 +351,9 @@ function PublicAlertPage() {
                   </div>
                   <div>
                     <dt className="text-muted-foreground">Flood chance</dt>
-                    <dd className="font-semibold">{Math.round(o.probability * 100)}%</dd>
+                    <dd className="font-semibold">
+                      {Math.min(100, Math.round(o.probability <= 1 ? o.probability * 100 : o.probability))}%
+                    </dd>
                   </div>
                 </dl>
 
