@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated/alerts'
+import { Route as AuthenticatedEmergencyActionsRouteImport } from './routes/_authenticated/emergency-actions'
+import { Route as AuthenticatedEvacuationRouteImport } from './routes/_authenticated/evacuation'
 import { Route as AuthenticatedOverviewRouteImport } from './routes/_authenticated/overview'
 import { Route as AuthenticatedPredictionsRouteImport } from './routes/_authenticated/predictions'
 import { Route as AuthenticatedRiskMapRouteImport } from './routes/_authenticated/risk-map'
@@ -36,6 +38,17 @@ const AuthRoute = AuthRouteImport.update({
 const AuthenticatedAlertsRoute = AuthenticatedAlertsRouteImport.update({
   id: '/alerts',
   path: '/alerts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedEmergencyActionsRoute =
+  AuthenticatedEmergencyActionsRouteImport.update({
+    id: '/emergency-actions',
+    path: '/emergency-actions',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEvacuationRoute = AuthenticatedEvacuationRouteImport.update({
+  id: '/evacuation',
+  path: '/evacuation',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedOverviewRoute = AuthenticatedOverviewRouteImport.update({
@@ -70,6 +83,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/alerts': typeof AuthenticatedAlertsRoute
+  '/emergency-actions': typeof AuthenticatedEmergencyActionsRoute
+  '/evacuation': typeof AuthenticatedEvacuationRoute
   '/overview': typeof AuthenticatedOverviewRoute
   '/predictions': typeof AuthenticatedPredictionsRoute
   '/risk-map': typeof AuthenticatedRiskMapRoute
@@ -80,6 +95,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/alerts': typeof AuthenticatedAlertsRoute
+  '/emergency-actions': typeof AuthenticatedEmergencyActionsRoute
+  '/evacuation': typeof AuthenticatedEvacuationRoute
   '/overview': typeof AuthenticatedOverviewRoute
   '/predictions': typeof AuthenticatedPredictionsRoute
   '/risk-map': typeof AuthenticatedRiskMapRoute
@@ -92,6 +109,8 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/alerts': typeof AuthenticatedAlertsRoute
+  '/_authenticated/emergency-actions': typeof AuthenticatedEmergencyActionsRoute
+  '/_authenticated/evacuation': typeof AuthenticatedEvacuationRoute
   '/_authenticated/overview': typeof AuthenticatedOverviewRoute
   '/_authenticated/predictions': typeof AuthenticatedPredictionsRoute
   '/_authenticated/risk-map': typeof AuthenticatedRiskMapRoute
@@ -104,6 +123,8 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/alerts'
+    | '/emergency-actions'
+    | '/evacuation'
     | '/overview'
     | '/predictions'
     | '/risk-map'
@@ -114,6 +135,8 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/alerts'
+    | '/emergency-actions'
+    | '/evacuation'
     | '/overview'
     | '/predictions'
     | '/risk-map'
@@ -125,6 +148,8 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/alerts'
+    | '/_authenticated/emergency-actions'
+    | '/_authenticated/evacuation'
     | '/_authenticated/overview'
     | '/_authenticated/predictions'
     | '/_authenticated/risk-map'
@@ -168,6 +193,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAlertsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/emergency-actions': {
+      id: '/_authenticated/emergency-actions'
+      path: '/emergency-actions'
+      fullPath: '/emergency-actions'
+      preLoaderRoute: typeof AuthenticatedEmergencyActionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/evacuation': {
+      id: '/_authenticated/evacuation'
+      path: '/evacuation'
+      fullPath: '/evacuation'
+      preLoaderRoute: typeof AuthenticatedEvacuationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/overview': {
       id: '/_authenticated/overview'
       path: '/overview'
@@ -208,6 +247,8 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAlertsRoute: typeof AuthenticatedAlertsRoute
+  AuthenticatedEmergencyActionsRoute: typeof AuthenticatedEmergencyActionsRoute
+  AuthenticatedEvacuationRoute: typeof AuthenticatedEvacuationRoute
   AuthenticatedOverviewRoute: typeof AuthenticatedOverviewRoute
   AuthenticatedPredictionsRoute: typeof AuthenticatedPredictionsRoute
   AuthenticatedRiskMapRoute: typeof AuthenticatedRiskMapRoute
@@ -217,6 +258,8 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAlertsRoute: AuthenticatedAlertsRoute,
+  AuthenticatedEmergencyActionsRoute: AuthenticatedEmergencyActionsRoute,
+  AuthenticatedEvacuationRoute: AuthenticatedEvacuationRoute,
   AuthenticatedOverviewRoute: AuthenticatedOverviewRoute,
   AuthenticatedPredictionsRoute: AuthenticatedPredictionsRoute,
   AuthenticatedRiskMapRoute: AuthenticatedRiskMapRoute,
