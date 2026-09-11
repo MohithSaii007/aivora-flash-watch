@@ -107,9 +107,12 @@ function CommunityPage() {
         <Panel title="What to do">
           <ol className="space-y-2 text-xs">
             {steps.map((s, i) => (
-              <li key={s} className="flex gap-2">
+              <li key={s.action} className="flex gap-2">
                 <span className="metric text-primary">{i + 1}.</span>
-                <span>{s}</span>
+                <span>
+                  {s.action}
+                  <span className="mt-0.5 block text-[11px] text-muted-foreground">{s.reason}</span>
+                </span>
               </li>
             ))}
             {steps.length === 0 && (
