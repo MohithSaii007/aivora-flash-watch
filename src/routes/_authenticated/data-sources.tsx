@@ -77,8 +77,8 @@ function DataSourcesPage() {
         subtitle="Each has a service-layer entry point but is intentionally not connected in the prototype"
       >
         <ul className="grid gap-2 sm:grid-cols-2">
-          {FUTURE_INTEGRATIONS.map((f) => (
-            <li key={f.name} className="rounded-md border border-border bg-surface-2 px-3 py-2.5">
+          {Object.entries(futureIntegrations).map(([key, f]) => (
+            <li key={key} className="rounded-md border border-border bg-surface-2 px-3 py-2.5">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-medium">{f.name}</span>
                 <span
@@ -90,7 +90,6 @@ function DataSourcesPage() {
                   {f.connected ? "Connected" : "Not connected"}
                 </span>
               </div>
-              <p className="mt-1 text-[11px] text-muted-foreground">{f.purpose}</p>
             </li>
           ))}
         </ul>
