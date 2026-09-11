@@ -644,7 +644,10 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   const issueOrders = useCallback(
     (states: LocationLiveState[]) => {
       if (states.length === 0) return 0;
-      const orders = states.map((s) => buildEvacuationOrder(s, shelters));
+      const orders = states.map((s) => ({
+        ...buildEvacuationOrder(s, shelters),
+        id: crypto.randomUUID(),
+      }));
       setEvacuationOrders((prev) => [
         ...orders,
         ...prev.filter((o) => !orders.some((n) => n.locationId === o.locationId)),
@@ -669,6 +672,41 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
         title: "EVACUATION ORDER ISSUED",
         body: `${orders.length} ${orders.length === 1 ? "village" : "villages"} ordered to evacuate — approximately ${people.toLocaleString()} people to move now.`,
       });
+
+      // Publish so any phone opening the public alert page sees the order.
+      void publishEvacuationOrders(
+        orders.map((o, i) => {
+          const primary = o.shelters[0];
+          return {
+            id: o.id,
+            location_id: o.locationId,
+            location_name: o.locationName,
+            risk_level: o.riskLevel,
+            risk_score: Math.round(states[i]?.prediction.riskScore ?? 0),
+            probability: o.probability,
+            lead_time_minutes: o.leadTimeMinutes,
+            exposed_population: o.exposedPopulation,
+            total_population: o.totalPopulation,
+            primary_shelter_name: primary?.name ?? null,
+            primary_shelter_distance_km: primary?.distanceKm ?? null,
+            primary_shelter_walk_minutes: primary?.walkMinutes ?? null,
+            primary_shelter_drive_minutes: primary?.driveMinutes ?? null,
+            primary_shelter_accessibility: primary?.accessibility ?? null,
+            primary_shelter_available: primary?.availableCapacity ?? null,
+            primary_shelter_lat: primary?.latitude ?? null,
+            primary_shelter_lng: primary?.longitude ?? null,
+            alternate_shelters: o.shelters.slice(1).map((s) => ({
+              name: s.name,
+              distanceKm: s.distanceKm,
+              walkMinutes: s.walkMinutes,
+              availableCapacity: s.availableCapacity,
+            })),
+            message: o.message,
+            status: "ACTIVE",
+          };
+        }),
+      ).catch(() => undefined);
+
       return orders.length;
     },
     [shelters, pushNotification],
@@ -693,9 +731,13 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     setEvacuationOrders((prev) =>
       prev.map((o) => (o.id === orderId ? { ...o, status: "STOOD DOWN" as const } : o)),
     );
+    void publishOrderStatus(orderId, "STOOD DOWN").catch(() => undefined);
   }, []);
 
-  const clearEvacuationOrders = useCallback(() => setEvacuationOrders([]), []);
+  const clearEvacuationOrders = useCallback(() => {
+    setEvacuationOrders([]);
+    void clearPublishedOrders().catch(() => undefined);
+  }, []);
 
   const value = useMemo<SimulationContextValue>(
     () => ({
