@@ -102,6 +102,89 @@ export type Database = {
           },
         ]
       }
+      evacuation_orders: {
+        Row: {
+          alternate_shelters: Json
+          created_at: string
+          exposed_population: number
+          id: string
+          lead_time_minutes: number | null
+          location_id: string | null
+          location_name: string
+          message: string
+          primary_shelter_accessibility: string | null
+          primary_shelter_available: number | null
+          primary_shelter_distance_km: number | null
+          primary_shelter_drive_minutes: number | null
+          primary_shelter_lat: number | null
+          primary_shelter_lng: number | null
+          primary_shelter_name: string | null
+          primary_shelter_walk_minutes: number | null
+          probability: number
+          risk_level: Database["public"]["Enums"]["risk_level"]
+          risk_score: number
+          status: string
+          total_population: number
+          updated_at: string
+        }
+        Insert: {
+          alternate_shelters?: Json
+          created_at?: string
+          exposed_population?: number
+          id?: string
+          lead_time_minutes?: number | null
+          location_id?: string | null
+          location_name: string
+          message: string
+          primary_shelter_accessibility?: string | null
+          primary_shelter_available?: number | null
+          primary_shelter_distance_km?: number | null
+          primary_shelter_drive_minutes?: number | null
+          primary_shelter_lat?: number | null
+          primary_shelter_lng?: number | null
+          primary_shelter_name?: string | null
+          primary_shelter_walk_minutes?: number | null
+          probability?: number
+          risk_level?: Database["public"]["Enums"]["risk_level"]
+          risk_score?: number
+          status?: string
+          total_population?: number
+          updated_at?: string
+        }
+        Update: {
+          alternate_shelters?: Json
+          created_at?: string
+          exposed_population?: number
+          id?: string
+          lead_time_minutes?: number | null
+          location_id?: string | null
+          location_name?: string
+          message?: string
+          primary_shelter_accessibility?: string | null
+          primary_shelter_available?: number | null
+          primary_shelter_distance_km?: number | null
+          primary_shelter_drive_minutes?: number | null
+          primary_shelter_lat?: number | null
+          primary_shelter_lng?: number | null
+          primary_shelter_name?: string | null
+          primary_shelter_walk_minutes?: number | null
+          probability?: number
+          risk_level?: Database["public"]["Enums"]["risk_level"]
+          risk_score?: number
+          status?: string
+          total_population?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evacuation_orders_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       evacuation_routes: {
         Row: {
           distance_km: number
