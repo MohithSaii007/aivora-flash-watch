@@ -161,7 +161,7 @@ function AuthPage() {
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
             {mode === "signup"
-              ? "Select the role that matches your responsibility."
+              ? "Your access level is decided by your email address, not chosen here."
               : "Access is role-based and every screen is labelled as prototype data."}
           </p>
 
