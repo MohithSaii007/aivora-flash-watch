@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { KpiCard, Panel, PrototypeNotice, StatBar } from "@/components/aivora/primitives";
 import { LocationSelector } from "@/components/aivora/insight";
+import { EvacuationOrderPanel } from "@/components/aivora/EvacuationOrder";
 import { RiskMap } from "@/components/aivora/RiskMap";
 import { useSimulation } from "@/lib/aivora/store";
 import { cn } from "@/lib/utils";
@@ -65,8 +66,21 @@ function EvacuationPage() {
           level={available < capacity * 0.2 ? "WARNING" : "NORMAL"}
           live
         />
+        <KpiCard
+          label="People told to move"
+          value={sim.evacuationOrders
+            .filter((o) => o.status === "ACTIVE")
+            .reduce((n, o) => n + o.exposedPopulation, 0)
+            .toLocaleString()}
+          hint={`${sim.evacuationOrders.filter((o) => o.status === "ACTIVE").length} active orders`}
+          level={sim.evacuationOrders.some((o) => o.status === "ACTIVE") ? "CRITICAL" : "NORMAL"}
+          live
+        />
         <KpiCard label="Roads blocked / risky" value={blocked} level={blocked > 0 ? "WATCH" : "NORMAL"} live />
       </div>
+
+      <EvacuationOrderPanel onFocusLocation={sim.setSelectedLocationId} />
+
 
       <div className="grid gap-4 xl:grid-cols-3">
         <Panel title="Evacuation network" subtitle="Routes, shelters and road status" className="xl:col-span-2" bodyClassName="p-2">

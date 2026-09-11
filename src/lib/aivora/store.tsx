@@ -33,6 +33,8 @@ import type {
   ShelterRecord,
   VulnerabilityRecord,
 } from "./types";
+import { buildEvacuationOrder } from "./evacuation";
+import type { EvacuationOrder } from "./evacuation";
 import {
   createAlert,
   getEvacuationRoutes,
@@ -119,6 +121,11 @@ interface SimulationContextValue {
   escalateAlert: (id: string) => void;
   setActionStatus: (id: string, status: string) => void;
   markNotificationsRead: () => void;
+  evacuationOrders: EvacuationOrder[];
+  orderEvacuation: (locationId: string) => void;
+  orderDistrictEvacuation: () => number;
+  standDownOrder: (orderId: string) => void;
+  clearEvacuationOrders: () => void;
 }
 
 const SimulationContext = createContext<SimulationContextValue | null>(null);
@@ -174,6 +181,7 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
   const [alerts, setAlerts] = useState<AlertRecord[]>([]);
   const [actions, setActions] = useState<EmergencyActionItem[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [evacuationOrders, setEvacuationOrders] = useState<EvacuationOrder[]>([]);
 
   const [running, setRunning] = useState(true);
   const [speed, setSpeed] = useState(2);
@@ -629,6 +637,63 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   }, []);
 
+  // ---------- mass evacuation orders ----------
+  const issueOrders = useCallback(
+    (states: LocationLiveState[]) => {
+      if (states.length === 0) return 0;
+      const orders = states.map((s) => buildEvacuationOrder(s, shelters));
+      setEvacuationOrders((prev) => [
+        ...orders,
+        ...prev.filter((o) => !orders.some((n) => n.locationId === o.locationId)),
+      ]);
+      const people = orders.reduce((n, o) => n + o.exposedPopulation, 0);
+      setActions((prev) => [
+        ...orders.map((o) => ({
+          id: uid(),
+          locationId: o.locationId,
+          locationName: o.locationName,
+          priority: 1,
+          action: `Evacuate ${o.exposedPopulation.toLocaleString()} people from ${o.locationName} to ${
+            o.shelters[0]?.name ?? "higher ground"
+          }`,
+          reason: "Evacuation order issued by the control room",
+          status: "URGENT",
+        })),
+        ...prev,
+      ]);
+      pushNotification({
+        level: "CRITICAL",
+        title: "EVACUATION ORDER ISSUED",
+        body: `${orders.length} ${orders.length === 1 ? "village" : "villages"} ordered to evacuate — approximately ${people.toLocaleString()} people to move now.`,
+      });
+      return orders.length;
+    },
+    [shelters, pushNotification],
+  );
+
+  const orderEvacuation = useCallback(
+    (locationId: string) => {
+      const state = live[locationId];
+      if (state) issueOrders([state]);
+    },
+    [live, issueOrders],
+  );
+
+  const orderDistrictEvacuation = useCallback(() => {
+    const atRisk = Object.values(live).filter(
+      (s) => s.prediction.riskScore >= thresholds.warning,
+    );
+    return issueOrders(atRisk);
+  }, [live, thresholds, issueOrders]);
+
+  const standDownOrder = useCallback((orderId: string) => {
+    setEvacuationOrders((prev) =>
+      prev.map((o) => (o.id === orderId ? { ...o, status: "STOOD DOWN" as const } : o)),
+    );
+  }, []);
+
+  const clearEvacuationOrders = useCallback(() => setEvacuationOrders([]), []);
+
   const value = useMemo<SimulationContextValue>(
     () => ({
       ready,
@@ -677,6 +742,11 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       escalateAlert,
       setActionStatus,
       markNotificationsRead,
+      evacuationOrders,
+      orderEvacuation,
+      orderDistrictEvacuation,
+      standDownOrder,
+      clearEvacuationOrders,
     }),
     [
       ready,
@@ -719,6 +789,11 @@ export function SimulationProvider({ children }: { children: ReactNode }) {
       escalateAlert,
       setActionStatus,
       markNotificationsRead,
+      evacuationOrders,
+      orderEvacuation,
+      orderDistrictEvacuation,
+      standDownOrder,
+      clearEvacuationOrders,
     ],
   );
 
