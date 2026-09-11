@@ -234,7 +234,11 @@ function PublicAlertPage() {
               <p className="text-xs font-bold">Siren on · watching your location</p>
               <p className="mt-0.5 text-[11px] text-muted-foreground">
                 {inDanger
-                  ? `You are ${inDanger.distanceKm.toFixed(1)} km from ${inDanger.order.location_name}, which is under an evacuation order.`
+                  ? `You are ${
+                      inDanger.distanceKm < 1
+                        ? `${Math.round(inDanger.distanceKm * 1000)} metres`
+                        : `${inDanger.distanceKm.toFixed(1)} km`
+                    } from ${inDanger.order.location_name}, which is under an evacuation order.`
                   : "You are not inside a village under an evacuation order. Your phone will sound a siren the moment that changes."}
               </p>
               <button
