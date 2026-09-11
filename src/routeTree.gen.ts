@@ -10,33 +10,243 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAlertsRouteImport } from './routes/_authenticated/alerts'
+import { Route as AuthenticatedCommunityRouteImport } from './routes/_authenticated/community'
+import { Route as AuthenticatedDataSourcesRouteImport } from './routes/_authenticated/data-sources'
+import { Route as AuthenticatedEmergencyActionsRouteImport } from './routes/_authenticated/emergency-actions'
+import { Route as AuthenticatedEvacuationRouteImport } from './routes/_authenticated/evacuation'
+import { Route as AuthenticatedHistoricalRouteImport } from './routes/_authenticated/historical'
+import { Route as AuthenticatedOverviewRouteImport } from './routes/_authenticated/overview'
+import { Route as AuthenticatedPipelineRouteImport } from './routes/_authenticated/pipeline'
+import { Route as AuthenticatedPredictionsRouteImport } from './routes/_authenticated/predictions'
+import { Route as AuthenticatedRiskMapRouteImport } from './routes/_authenticated/risk-map'
+import { Route as AuthenticatedSensorsRouteImport } from './routes/_authenticated/sensors'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedSimulationRouteImport } from './routes/_authenticated/simulation'
+import { Route as AuthenticatedSystemHealthRouteImport } from './routes/_authenticated/system-health'
+import { Route as AuthenticatedVulnerabilityRouteImport } from './routes/_authenticated/vulnerability'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAlertsRoute = AuthenticatedAlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCommunityRoute = AuthenticatedCommunityRouteImport.update({
+  id: '/community',
+  path: '/community',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDataSourcesRoute =
+  AuthenticatedDataSourcesRouteImport.update({
+    id: '/data-sources',
+    path: '/data-sources',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEmergencyActionsRoute =
+  AuthenticatedEmergencyActionsRouteImport.update({
+    id: '/emergency-actions',
+    path: '/emergency-actions',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEvacuationRoute = AuthenticatedEvacuationRouteImport.update({
+  id: '/evacuation',
+  path: '/evacuation',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedHistoricalRoute = AuthenticatedHistoricalRouteImport.update({
+  id: '/historical',
+  path: '/historical',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOverviewRoute = AuthenticatedOverviewRouteImport.update({
+  id: '/overview',
+  path: '/overview',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPipelineRoute = AuthenticatedPipelineRouteImport.update({
+  id: '/pipeline',
+  path: '/pipeline',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPredictionsRoute =
+  AuthenticatedPredictionsRouteImport.update({
+    id: '/predictions',
+    path: '/predictions',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedRiskMapRoute = AuthenticatedRiskMapRouteImport.update({
+  id: '/risk-map',
+  path: '/risk-map',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSensorsRoute = AuthenticatedSensorsRouteImport.update({
+  id: '/sensors',
+  path: '/sensors',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSimulationRoute = AuthenticatedSimulationRouteImport.update({
+  id: '/simulation',
+  path: '/simulation',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSystemHealthRoute =
+  AuthenticatedSystemHealthRouteImport.update({
+    id: '/system-health',
+    path: '/system-health',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedVulnerabilityRoute =
+  AuthenticatedVulnerabilityRouteImport.update({
+    id: '/vulnerability',
+    path: '/vulnerability',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/alerts': typeof AuthenticatedAlertsRoute
+  '/community': typeof AuthenticatedCommunityRoute
+  '/data-sources': typeof AuthenticatedDataSourcesRoute
+  '/emergency-actions': typeof AuthenticatedEmergencyActionsRoute
+  '/evacuation': typeof AuthenticatedEvacuationRoute
+  '/historical': typeof AuthenticatedHistoricalRoute
+  '/overview': typeof AuthenticatedOverviewRoute
+  '/pipeline': typeof AuthenticatedPipelineRoute
+  '/predictions': typeof AuthenticatedPredictionsRoute
+  '/risk-map': typeof AuthenticatedRiskMapRoute
+  '/sensors': typeof AuthenticatedSensorsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/simulation': typeof AuthenticatedSimulationRoute
+  '/system-health': typeof AuthenticatedSystemHealthRoute
+  '/vulnerability': typeof AuthenticatedVulnerabilityRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/alerts': typeof AuthenticatedAlertsRoute
+  '/community': typeof AuthenticatedCommunityRoute
+  '/data-sources': typeof AuthenticatedDataSourcesRoute
+  '/emergency-actions': typeof AuthenticatedEmergencyActionsRoute
+  '/evacuation': typeof AuthenticatedEvacuationRoute
+  '/historical': typeof AuthenticatedHistoricalRoute
+  '/overview': typeof AuthenticatedOverviewRoute
+  '/pipeline': typeof AuthenticatedPipelineRoute
+  '/predictions': typeof AuthenticatedPredictionsRoute
+  '/risk-map': typeof AuthenticatedRiskMapRoute
+  '/sensors': typeof AuthenticatedSensorsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/simulation': typeof AuthenticatedSimulationRoute
+  '/system-health': typeof AuthenticatedSystemHealthRoute
+  '/vulnerability': typeof AuthenticatedVulnerabilityRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/alerts': typeof AuthenticatedAlertsRoute
+  '/_authenticated/community': typeof AuthenticatedCommunityRoute
+  '/_authenticated/data-sources': typeof AuthenticatedDataSourcesRoute
+  '/_authenticated/emergency-actions': typeof AuthenticatedEmergencyActionsRoute
+  '/_authenticated/evacuation': typeof AuthenticatedEvacuationRoute
+  '/_authenticated/historical': typeof AuthenticatedHistoricalRoute
+  '/_authenticated/overview': typeof AuthenticatedOverviewRoute
+  '/_authenticated/pipeline': typeof AuthenticatedPipelineRoute
+  '/_authenticated/predictions': typeof AuthenticatedPredictionsRoute
+  '/_authenticated/risk-map': typeof AuthenticatedRiskMapRoute
+  '/_authenticated/sensors': typeof AuthenticatedSensorsRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/simulation': typeof AuthenticatedSimulationRoute
+  '/_authenticated/system-health': typeof AuthenticatedSystemHealthRoute
+  '/_authenticated/vulnerability': typeof AuthenticatedVulnerabilityRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/alerts'
+    | '/community'
+    | '/data-sources'
+    | '/emergency-actions'
+    | '/evacuation'
+    | '/historical'
+    | '/overview'
+    | '/pipeline'
+    | '/predictions'
+    | '/risk-map'
+    | '/sensors'
+    | '/settings'
+    | '/simulation'
+    | '/system-health'
+    | '/vulnerability'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/alerts'
+    | '/community'
+    | '/data-sources'
+    | '/emergency-actions'
+    | '/evacuation'
+    | '/historical'
+    | '/overview'
+    | '/pipeline'
+    | '/predictions'
+    | '/risk-map'
+    | '/sensors'
+    | '/settings'
+    | '/simulation'
+    | '/system-health'
+    | '/vulnerability'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/alerts'
+    | '/_authenticated/community'
+    | '/_authenticated/data-sources'
+    | '/_authenticated/emergency-actions'
+    | '/_authenticated/evacuation'
+    | '/_authenticated/historical'
+    | '/_authenticated/overview'
+    | '/_authenticated/pipeline'
+    | '/_authenticated/predictions'
+    | '/_authenticated/risk-map'
+    | '/_authenticated/sensors'
+    | '/_authenticated/settings'
+    | '/_authenticated/simulation'
+    | '/_authenticated/system-health'
+    | '/_authenticated/vulnerability'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +258,171 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/alerts': {
+      id: '/_authenticated/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AuthenticatedAlertsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/community': {
+      id: '/_authenticated/community'
+      path: '/community'
+      fullPath: '/community'
+      preLoaderRoute: typeof AuthenticatedCommunityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/data-sources': {
+      id: '/_authenticated/data-sources'
+      path: '/data-sources'
+      fullPath: '/data-sources'
+      preLoaderRoute: typeof AuthenticatedDataSourcesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/emergency-actions': {
+      id: '/_authenticated/emergency-actions'
+      path: '/emergency-actions'
+      fullPath: '/emergency-actions'
+      preLoaderRoute: typeof AuthenticatedEmergencyActionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/evacuation': {
+      id: '/_authenticated/evacuation'
+      path: '/evacuation'
+      fullPath: '/evacuation'
+      preLoaderRoute: typeof AuthenticatedEvacuationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/historical': {
+      id: '/_authenticated/historical'
+      path: '/historical'
+      fullPath: '/historical'
+      preLoaderRoute: typeof AuthenticatedHistoricalRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/overview': {
+      id: '/_authenticated/overview'
+      path: '/overview'
+      fullPath: '/overview'
+      preLoaderRoute: typeof AuthenticatedOverviewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pipeline': {
+      id: '/_authenticated/pipeline'
+      path: '/pipeline'
+      fullPath: '/pipeline'
+      preLoaderRoute: typeof AuthenticatedPipelineRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/predictions': {
+      id: '/_authenticated/predictions'
+      path: '/predictions'
+      fullPath: '/predictions'
+      preLoaderRoute: typeof AuthenticatedPredictionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/risk-map': {
+      id: '/_authenticated/risk-map'
+      path: '/risk-map'
+      fullPath: '/risk-map'
+      preLoaderRoute: typeof AuthenticatedRiskMapRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/sensors': {
+      id: '/_authenticated/sensors'
+      path: '/sensors'
+      fullPath: '/sensors'
+      preLoaderRoute: typeof AuthenticatedSensorsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/simulation': {
+      id: '/_authenticated/simulation'
+      path: '/simulation'
+      fullPath: '/simulation'
+      preLoaderRoute: typeof AuthenticatedSimulationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/system-health': {
+      id: '/_authenticated/system-health'
+      path: '/system-health'
+      fullPath: '/system-health'
+      preLoaderRoute: typeof AuthenticatedSystemHealthRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/vulnerability': {
+      id: '/_authenticated/vulnerability'
+      path: '/vulnerability'
+      fullPath: '/vulnerability'
+      preLoaderRoute: typeof AuthenticatedVulnerabilityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAlertsRoute: typeof AuthenticatedAlertsRoute
+  AuthenticatedCommunityRoute: typeof AuthenticatedCommunityRoute
+  AuthenticatedDataSourcesRoute: typeof AuthenticatedDataSourcesRoute
+  AuthenticatedEmergencyActionsRoute: typeof AuthenticatedEmergencyActionsRoute
+  AuthenticatedEvacuationRoute: typeof AuthenticatedEvacuationRoute
+  AuthenticatedHistoricalRoute: typeof AuthenticatedHistoricalRoute
+  AuthenticatedOverviewRoute: typeof AuthenticatedOverviewRoute
+  AuthenticatedPipelineRoute: typeof AuthenticatedPipelineRoute
+  AuthenticatedPredictionsRoute: typeof AuthenticatedPredictionsRoute
+  AuthenticatedRiskMapRoute: typeof AuthenticatedRiskMapRoute
+  AuthenticatedSensorsRoute: typeof AuthenticatedSensorsRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedSimulationRoute: typeof AuthenticatedSimulationRoute
+  AuthenticatedSystemHealthRoute: typeof AuthenticatedSystemHealthRoute
+  AuthenticatedVulnerabilityRoute: typeof AuthenticatedVulnerabilityRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAlertsRoute: AuthenticatedAlertsRoute,
+  AuthenticatedCommunityRoute: AuthenticatedCommunityRoute,
+  AuthenticatedDataSourcesRoute: AuthenticatedDataSourcesRoute,
+  AuthenticatedEmergencyActionsRoute: AuthenticatedEmergencyActionsRoute,
+  AuthenticatedEvacuationRoute: AuthenticatedEvacuationRoute,
+  AuthenticatedHistoricalRoute: AuthenticatedHistoricalRoute,
+  AuthenticatedOverviewRoute: AuthenticatedOverviewRoute,
+  AuthenticatedPipelineRoute: AuthenticatedPipelineRoute,
+  AuthenticatedPredictionsRoute: AuthenticatedPredictionsRoute,
+  AuthenticatedRiskMapRoute: AuthenticatedRiskMapRoute,
+  AuthenticatedSensorsRoute: AuthenticatedSensorsRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedSimulationRoute: AuthenticatedSimulationRoute,
+  AuthenticatedSystemHealthRoute: AuthenticatedSystemHealthRoute,
+  AuthenticatedVulnerabilityRoute: AuthenticatedVulnerabilityRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
