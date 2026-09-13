@@ -47,9 +47,12 @@ function AuthPage() {
       window.location.hash.includes("type=recovery") ||
       new URL(window.location.href).searchParams.get("type") === "recovery";
     if (isRecovery) {
-      void navigate({ to: "/reset-password", search: undefined, hash: window.location.hash.replace(/^#/, "") });
+      setMode("reset");
+      window.location.replace(
+        `/reset-password${window.location.search}${window.location.hash}`,
+      );
     }
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
     if (session && mode !== "reset") void navigate({ to: "/overview" });
