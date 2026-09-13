@@ -42,10 +42,14 @@ function AuthPage() {
   const { session } = useAuth();
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.location.hash.includes("type=recovery")) {
-      setMode("reset");
+    if (typeof window === "undefined") return;
+    const isRecovery =
+      window.location.hash.includes("type=recovery") ||
+      new URL(window.location.href).searchParams.get("type") === "recovery";
+    if (isRecovery) {
+      void navigate({ to: "/reset-password", search: undefined, hash: window.location.hash.replace(/^#/, "") });
     }
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     if (session && mode !== "reset") void navigate({ to: "/overview" });
