@@ -42,8 +42,15 @@ function AuthPage() {
   const { session } = useAuth();
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.location.hash.includes("type=recovery")) {
+    if (typeof window === "undefined") return;
+    const isRecovery =
+      window.location.hash.includes("type=recovery") ||
+      new URL(window.location.href).searchParams.get("type") === "recovery";
+    if (isRecovery) {
       setMode("reset");
+      window.location.replace(
+        `/reset-password${window.location.search}${window.location.hash}`,
+      );
     }
   }, []);
 
@@ -81,7 +88,7 @@ function AuthPage() {
         }
       } else if (mode === "forgot") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/auth`,
+          redirectTo: `${window.location.origin}/reset-password`,
         });
         if (error) throw error;
         toast.success("Password reset link sent");
