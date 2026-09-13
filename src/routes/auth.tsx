@@ -227,14 +227,20 @@ function AuthPage() {
             </Button>
           </form>
 
-          {mode === "login" && (
+          {(mode === "login" || mode === "signup") && (
             <>
               <div className="my-4 flex items-center gap-3">
                 <span className="h-px flex-1 bg-border" />
                 <span className="data-label">or</span>
                 <span className="h-px flex-1 bg-border" />
               </div>
-              <Button variant="secondary" className="w-full" onClick={googleSignIn} disabled={busy}>
+              <Button
+                type="button"
+                variant="secondary"
+                className="w-full"
+                onClick={googleSignIn}
+                disabled={busy}
+              >
                 Continue with Google
               </Button>
             </>
