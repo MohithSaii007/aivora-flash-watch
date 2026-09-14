@@ -109,6 +109,22 @@ function ResetPasswordPage() {
     }
   };
 
+  const resend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resendEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast.success("A fresh reset link is on its way. Open it on this same device.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not send a new link");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center p-6">
       <div className="panel w-full max-w-md p-6">
@@ -118,11 +134,35 @@ function ResetPasswordPage() {
         </div>
         <h1 className="mt-3 font-display text-2xl font-bold">Choose a new password</h1>
 
-        {!ready ? (
-          <p className="mt-4 text-sm text-muted-foreground">
-            Checking your reset link… If this does not clear, request a fresh link from the sign-in
-            page — reset links expire quickly and can only be used once.
+        {checking ? (
+          <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="size-4 animate-spin" /> Checking your reset link…
           </p>
+        ) : !ready ? (
+          <div className="mt-4 space-y-4">
+            <p className="text-sm text-destructive">{linkError}</p>
+            <p className="text-xs text-muted-foreground">
+              Reset links work once, expire after about an hour, and must be opened on the same
+              device and browser where you asked for them. Enter your email to get a new one.
+            </p>
+            <form onSubmit={resend} className="space-y-3">
+              <div>
+                <Label htmlFor="resend-email">Email</Label>
+                <Input
+                  id="resend-email"
+                  type="email"
+                  required
+                  value={resendEmail}
+                  onChange={(e) => setResendEmail(e.target.value)}
+                  className="mt-1.5"
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={busy}>
+                {busy && <Loader2 className="size-4 animate-spin" />}
+                Send me a new link
+              </Button>
+            </form>
+          </div>
         ) : (
           <form onSubmit={submit} className="mt-6 space-y-4">
             <div>
