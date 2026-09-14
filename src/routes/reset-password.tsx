@@ -34,6 +34,9 @@ function ResetPasswordPage() {
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(false);
+  const [checking, setChecking] = useState(true);
+  const [linkError, setLinkError] = useState<string | null>(null);
+  const [resendEmail, setResendEmail] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,20 +47,36 @@ function ResetPasswordPage() {
       const hash = new URLSearchParams(url.hash.replace(/^#/, ""));
       const code = url.searchParams.get("code");
       const tokenHash = url.searchParams.get("token_hash") ?? hash.get("token_hash");
+      const errorDescription =
+        url.searchParams.get("error_description") ?? hash.get("error_description");
+      const errorCode = url.searchParams.get("error_code") ?? hash.get("error_code");
+      let failure: string | null = errorDescription
+        ? errorDescription.replace(/\+/g, " ")
+        : errorCode
+          ? `This link is no longer valid (${errorCode}).`
+          : null;
 
       try {
         if (code) {
-          await supabase.auth.exchangeCodeForSession(code);
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) failure = failure ?? error.message;
         } else if (tokenHash) {
-          await supabase.auth.verifyOtp({ type: "recovery", token_hash: tokenHash });
+          const { error } = await supabase.auth.verifyOtp({
+            type: "recovery",
+            token_hash: tokenHash,
+          });
+          if (error) failure = failure ?? error.message;
         }
-      } catch {
-        // fall through: the hash flow may already have created the session
+      } catch (err) {
+        failure = failure ?? (err instanceof Error ? err.message : "Could not open the reset link.");
       }
 
       const { data } = await supabase.auth.getSession();
       if (!active) return;
-      setReady(Boolean(data.session));
+      const hasSession = Boolean(data.session);
+      setReady(hasSession);
+      setLinkError(hasSession ? null : (failure ?? "This reset link has expired or was already used."));
+      setChecking(false);
     };
 
     void finishLink();
@@ -90,6 +109,22 @@ function ResetPasswordPage() {
     }
   };
 
+  const resend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resendEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast.success("A fresh reset link is on its way. Open it on this same device.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not send a new link");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center p-6">
       <div className="panel w-full max-w-md p-6">
@@ -99,11 +134,35 @@ function ResetPasswordPage() {
         </div>
         <h1 className="mt-3 font-display text-2xl font-bold">Choose a new password</h1>
 
-        {!ready ? (
-          <p className="mt-4 text-sm text-muted-foreground">
-            Checking your reset link… If this does not clear, request a fresh link from the sign-in
-            page — reset links expire quickly and can only be used once.
+        {checking ? (
+          <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="size-4 animate-spin" /> Checking your reset link…
           </p>
+        ) : !ready ? (
+          <div className="mt-4 space-y-4">
+            <p className="text-sm text-destructive">{linkError}</p>
+            <p className="text-xs text-muted-foreground">
+              Reset links work once, expire after about an hour, and must be opened on the same
+              device and browser where you asked for them. Enter your email to get a new one.
+            </p>
+            <form onSubmit={resend} className="space-y-3">
+              <div>
+                <Label htmlFor="resend-email">Email</Label>
+                <Input
+                  id="resend-email"
+                  type="email"
+                  required
+                  value={resendEmail}
+                  onChange={(e) => setResendEmail(e.target.value)}
+                  className="mt-1.5"
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={busy}>
+                {busy && <Loader2 className="size-4 animate-spin" />}
+                Send me a new link
+              </Button>
+            </form>
+          </div>
         ) : (
           <form onSubmit={submit} className="mt-6 space-y-4">
             <div>

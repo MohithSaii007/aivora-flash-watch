@@ -55,6 +55,10 @@ function AuthPage() {
   }, []);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const href = window.location.href;
+      if (href.includes("type=recovery") || href.includes("token_hash")) return;
+    }
     if (session && mode !== "reset") void navigate({ to: "/overview" });
   }, [session, mode, navigate]);
 
