@@ -34,6 +34,9 @@ function ResetPasswordPage() {
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(false);
+  const [checking, setChecking] = useState(true);
+  const [linkError, setLinkError] = useState<string | null>(null);
+  const [resendEmail, setResendEmail] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,20 +47,36 @@ function ResetPasswordPage() {
       const hash = new URLSearchParams(url.hash.replace(/^#/, ""));
       const code = url.searchParams.get("code");
       const tokenHash = url.searchParams.get("token_hash") ?? hash.get("token_hash");
+      const errorDescription =
+        url.searchParams.get("error_description") ?? hash.get("error_description");
+      const errorCode = url.searchParams.get("error_code") ?? hash.get("error_code");
+      let failure: string | null = errorDescription
+        ? errorDescription.replace(/\+/g, " ")
+        : errorCode
+          ? `This link is no longer valid (${errorCode}).`
+          : null;
 
       try {
         if (code) {
-          await supabase.auth.exchangeCodeForSession(code);
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) failure = failure ?? error.message;
         } else if (tokenHash) {
-          await supabase.auth.verifyOtp({ type: "recovery", token_hash: tokenHash });
+          const { error } = await supabase.auth.verifyOtp({
+            type: "recovery",
+            token_hash: tokenHash,
+          });
+          if (error) failure = failure ?? error.message;
         }
-      } catch {
-        // fall through: the hash flow may already have created the session
+      } catch (err) {
+        failure = failure ?? (err instanceof Error ? err.message : "Could not open the reset link.");
       }
 
       const { data } = await supabase.auth.getSession();
       if (!active) return;
-      setReady(Boolean(data.session));
+      const hasSession = Boolean(data.session);
+      setReady(hasSession);
+      setLinkError(hasSession ? null : (failure ?? "This reset link has expired or was already used."));
+      setChecking(false);
     };
 
     void finishLink();
